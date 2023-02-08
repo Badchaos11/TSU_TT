@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/Badchaos11/TSU_TT/model"
@@ -10,6 +11,7 @@ import (
 
 func LoadConfig() (*model.Config, error) {
 	d := os.Getenv("DEPLOY")
+	fmt.Println(d)
 	f := "./configs/.env"
 	if d == "docker" {
 		f = "./configs/docker.env"

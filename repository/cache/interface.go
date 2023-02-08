@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -21,6 +22,7 @@ type kvRepo struct {
 }
 
 func NewCacheClient(ctx context.Context, url string) (ICacheRepository, error) {
+	fmt.Println("url redis ", url)
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     url,
 		Password: "",

@@ -16,6 +16,7 @@ services:
    depends_on:
     - redis-cache
     - database
+   restart: on-failure
   redis-cache:
     image: redis:latest
     container_name: redis-cache
@@ -29,11 +30,13 @@ services:
     container_name: database
     ports:
       - 5432:5432
-    env_file:
-      - ./configs/docker.env
+    environment:
+     POSTGRES_USER: "argolanguser"
+     POSTGRES_PASSWORD: "argolangpass"
+     POSTGRES_DB: 'tsutest'
     restart: always
     volumes:
-      - .:/var/lib/postgresql/data
+      - ./db:/var/lib/postgresql/data
     networks:
       - tsu-network
 
