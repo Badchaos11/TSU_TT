@@ -42,11 +42,7 @@ func NewRepository(ctx context.Context, dsn string, cacheUrl string) (IRepositor
 	if err != nil {
 		return nil, err
 	}
-
-	_, err = conn.Exec(ctx, initSqlTable)
-	if err != nil {
-		return nil, err
-	}
+	conn.Exec(ctx, initSqlTable)
 
 	cacheConn, err := cache.NewCacheClient(ctx, cacheUrl)
 	if err != nil {
