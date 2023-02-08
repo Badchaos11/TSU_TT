@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  tsu-api:
+   build: .
+   container_name: tsu-api
+   ports:
+     - 3000:3000
+   networks:
+    - tsu-network
+   volumes:
+    - type: bind
+      source: ./configs
+      target:
+          /configs
+   depends_on:
+    - redis-cache
+    - database
+  redis-cache:
+    image: redis:latest
+    container_name: redis-cache
+    ports:
+      - 6379:6379
+    restart: always
+    networks:
+      - tsu-network
+  database:
+    image: postgres:latest
+    container_name: database
+    ports:
+      - 5432:5432
+    env_file:
+      - ./configs/docker.env
+    restart: always
+    volumes:
+      - .:/var/lib/postgresql/data
+    networks:
+      - tsu-network
+
+
+
+networks:
+  tsu-network:
+   name: tsu-network
