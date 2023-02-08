@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/Badchaos11/TSU_TT/model"
@@ -10,14 +9,8 @@ import (
 )
 
 func LoadConfig() (*model.Config, error) {
-	d := os.Getenv("DEPLOY")
-	fmt.Println(d)
-	f := "./configs/.env"
-	if d == "docker" {
-		f = "./configs/docker.env"
-	}
 
-	err := godotenv.Load(f)
+	err := godotenv.Load("./configs/.env")
 	if err != nil {
 		logrus.Errorf("failed to load config: %v", err)
 		return nil, err
