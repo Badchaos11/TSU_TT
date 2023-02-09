@@ -17,6 +17,7 @@ type IRepository interface {
 	DeleteUser(ctx context.Context, userId int64) (bool, error)
 	GetUserByID(ctx context.Context, userId int) (*model.User, error)
 	GetUsersFiltered(ctx context.Context, filter model.UserFilter) ([]model.User, error)
+	CheckIsUserExists(ctx context.Context, userId int64) (bool, error)
 	ClearCache(ctx context.Context) error
 }
 

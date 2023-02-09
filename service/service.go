@@ -60,7 +60,7 @@ func (s *service) Run() {
 
 	go func() {
 		for {
-			time.Sleep(time.Hour * 1)
+			time.Sleep(time.Minute * 30)
 			logrus.Info("Cleaning cache...")
 			ctx := context.Background()
 			err := s.repo.ClearCache(ctx)

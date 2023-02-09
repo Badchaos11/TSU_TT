@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/Badchaos11/TSU_TT/model"
+	"github.com/sirupsen/logrus"
 	"github.com/tealeg/xlsx"
 )
 
@@ -72,6 +73,9 @@ func (s *service) GetUserFromFile(file multipart.File, size int64) (*model.User,
 	surname := ss.Cell(1, 0).Value
 	patr := ss.Cell(2, 0).Value
 	sex := ss.Cell(3, 0).Value
+	email := ss.Cell(4, 0).Value
+
+	logrus.Infof("parsed email from file %s", email)
 
 	return &model.User{
 		Name:       name,
