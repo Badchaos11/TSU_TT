@@ -30,7 +30,7 @@ type ResponseMessage struct {
 }
 
 type DeleteUserRequest struct {
-	UserID int64 `json:"id"`
+	UserID int64 `json:"user_id"`
 }
 
 type ChangeUserRequest struct {

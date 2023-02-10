@@ -33,6 +33,9 @@ func (r *Repo) ChangeUser(ctx context.Context, u model.ChangeUserRequest) (bool,
 			ub = ub.Set(k, v)
 		}
 	}
+	if u.BirthDate != nil {
+		ub = ub.Set("birth_date", *u.BirthDate)
+	}
 	exists, err := r.CheckIsUserExists(ctx, u.Id)
 	if err != nil {
 		return false, err
@@ -41,13 +44,12 @@ func (r *Repo) ChangeUser(ctx context.Context, u model.ChangeUserRequest) (bool,
 		return false, nil
 	}
 
-	sql, args, _ := ub.ToSql()
+	sql, args, err := ub.ToSql()
+	if err != nil {
+		return false, err
+	}
 	_, err = r.PGXRepo.Exec(ctx, sql, args...)
 	if err != nil {
-		if err == pgx.ErrNoRows {
-			logrus.Error("There is no user with this user ID %d", u.Id)
-			return false, nil
-		}
 		return false, err
 	}
 
@@ -69,10 +71,6 @@ func (r *Repo) DeleteUser(ctx context.Context, userId int64) (bool, error) {
 
 	_, err = r.PGXRepo.Exec(ctx, query, userId)
 	if err != nil {
-		if err == pgx.ErrNoRows {
-			logrus.Errorf("There is no user with id %d", userId)
-			return false, nil
-		}
 		return false, err
 	}
 
@@ -141,7 +139,7 @@ func (r *Repo) GetUsersFiltered(ctx context.Context, filter model.UserFilter) ([
 		sq = sq.Where(squirrel.Eq{"status": filter.Status})
 	}
 
-	if filter.OrderBy == "sex" || filter.OrderBy == "status" {
+	if filter.OrderBy != "" {
 		if filter.Desc != nil && *filter.Desc {
 			sq = sq.OrderBy(filter.OrderBy)
 			sq = sq.Suffix("desc")
@@ -163,11 +161,11 @@ func (r *Repo) GetUsersFiltered(ctx context.Context, filter model.UserFilter) ([
 	var res []model.User
 
 	uString, err := r.KVRepo.GetUsersFromCache(ctx, fmt.Sprintf("filtered-users:%s:%s:%s:%s:%s:%s:%v:%d:%d", filter.Sex, filter.Status, filter.Name, filter.Surname, filter.Patronymic, filter.OrderBy, *filter.Desc, filter.Limit, filter.Offset))
-	if err != nil {
+	if err != nil && err.Error() != "redis: nil" {
 		logrus.Errorf("Error getting users from cache: %v", err)
 	}
 
-	if uString != "" {
+	if uString != "" && uString != "null" {
 		err := json.Unmarshal([]byte(uString), &res)
 		if err != nil {
 			logrus.Errorf("Error unmarshalling users: %v", err)

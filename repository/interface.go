@@ -64,7 +64,7 @@ func makeFieldValMap(u model.ChangeUserRequest) map[string]string {
 	for _, field := range fields {
 		f := field.Tag("json")
 		f = strings.Split(f, ",")[0]
-		if f == "id" {
+		if f == "id" || f == "birth_date" {
 			continue
 		}
 		res[f] = field.Value().(string)

@@ -135,12 +135,17 @@ func (s *service) ChangeUser(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	exists, err := s.repo.ChangeUser(ctx, req)
 	if err != nil {
+		if err.Error() == "update statements must have at least one Set clause" {
+			logrus.Error("no columns set to update")
+			s.WriteResponse(w, http.StatusBadRequest, "Не заполнено ни одно из полей для обновления")
+			return
+		}
 		logrus.Errorf("error updating user %v", err)
 		s.WriteResponse(w, http.StatusInternalServerError, "Не удалось изменить данные пользователя")
 		return
 	}
 	if !exists {
-		logrus.Errorf("can't find user %v", err)
+		logrus.Errorf("can't find user with id %d", req.Id)
 		s.WriteResponse(w, http.StatusInternalServerError, "Пользователя с таким id не существует")
 		return
 	}
@@ -192,6 +197,14 @@ func (s *service) GetUserByID(w http.ResponseWriter, r *http.Request) {
 
 func (s *service) GetFilteredUsers(w http.ResponseWriter, r *http.Request) {
 	filter := s.GetUserFilter(r)
+
+	if filter.OrderBy != "" {
+		if filter.OrderBy != "sex" && filter.OrderBy != "status" {
+			logrus.Error("order by must be sex or status")
+			s.WriteResponse(w, http.StatusBadRequest, "Сортировка результатов возможна только по аттрибутам sex и status")
+			return
+		}
+	}
 
 	ctx := context.Background()
 	users, err := s.repo.GetUsersFiltered(ctx, filter)
